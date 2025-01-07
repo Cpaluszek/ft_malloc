@@ -1,0 +1,19 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wextra",
+      "-Wall",
+      "-Werror",
+      "-g3",
+      "-I../inc",
+      "-o",
+      "test",
+      "test.c"
+    ],
+    "directory": "/home/noon/ft_malloc/test",
+    "file": "/home/noon/ft_malloc/test/test.c",
+    "output": "/home/noon/ft_malloc/test/test"
+  }
+]

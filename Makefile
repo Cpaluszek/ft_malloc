@@ -54,7 +54,8 @@ re: fclean all
 
 test: force all
 	$(MAKE) -C test
-	LD_PRELOAD=./libft_malloc.so ./test/test
+	@echo "--- TESTS ---"
+	@LD_PRELOAD=./libft_malloc.so ./test/test
 
 force:
 
