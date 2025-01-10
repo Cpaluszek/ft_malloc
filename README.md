@@ -26,3 +26,20 @@ Implement a custom dynamic memory allocation library, including the following fu
 2. **Debugging Tools** by introducing debugging environment variables or custom debugging utilities.
 3. **Extended Visualization** to display allocation history or perform memory dumps.
 4. **Memory defragmentation**
+
+
+## Concepts
+**Heap**
+The "heap" is a contiguous region of memory managed by the allocator.
+- Grows dynamically during program execution.
+- Can be fragmented over time due to the allocation and deallocation of memory.
+
+**Chunk**
+A unit of memory within the heap which represents a single allocation or freeable block of memory.
+A chunk typically contains:
+- Header (metadata): Information about the size and state (allocated or free) of the chunk.
+- Payload: The memory returned to the user when malloc is called.
+
+**Arena**
+An "arena" is a data structure that contains and manages a collection of heaps.
+- Allows multiple threads to allocate memory concurrently without contention.

@@ -9,7 +9,7 @@ SRC_DIR := src
 INCLUDE_DIR := inc
 BUILD_DIR := build
 
-SRC_FILES := malloc.c
+SRC_FILES := malloc.c show_alloc_mem.c
 SRCS := $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 OBJS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 DEPS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.d)
@@ -47,7 +47,7 @@ clean:
 	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
-	@rm -f $(NAME) $(SYMLINK)
+	rm -f $(NAME) $(SYMLINK)
 	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
@@ -55,7 +55,7 @@ re: fclean all
 test: force all
 	$(MAKE) -C test
 	@echo "--- TESTS ---"
-	@LD_PRELOAD=./libft_malloc.so ./test/test
+	@LD_PRELOAD=$(SYMLINK) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test
 
 force:
 
