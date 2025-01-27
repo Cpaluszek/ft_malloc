@@ -1,5 +1,6 @@
 #include "malloc.h"
 #include "chunk.h"
+#include "zone.h"
 #include <stdint.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -10,46 +11,36 @@ malloc_state state;
 
 // TODO: make calloc()
 
+static inline size_t align_to_16(size_t size) {
+    return (size + 15) &~ 15;
+}
+
 void* my_malloc(size_t size) {
     if (size <= 0) {
         return NULL;
     }
 
-    if (size <= TINY_MAX_ALLOC_SIZE) {
-        // create a chunk
-        size_t aligned_size = (size + 15) & ~15;
-        size_t required_size = aligned_size + CHUNK_HEADER_SIZE; // TODO: need to align the size with 16
-        // search a free block
+    if (size <= SMALL_MAX_ALLOC_SIZE) {
+        zone* zone = get_available_zone(size);
+
+        size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
+
         chunkptr prev = NULL;
-        chunkptr current = state.tiny->free_list;
-        while (current != NULL) {
-            if (current->is_free && current->size >= required_size) {
-                break;
-            }
-            prev = current;
-            current = current->next;
-        }
+        chunkptr current = find_free_chunk(zone, required_size, prev);
 
         if (current == NULL) {
+            // TODO: we need a new zone
             return NULL; // out of memory
         }
 
         current->is_free = 0;
 
         // If there's excess space, split the chunk
-        if (current->size > required_size + CHUNK_HEADER_SIZE) {
-            chunkptr new_chunk = (chunkptr)((char*)current + required_size);
-            new_chunk->size = current->size - required_size;
-            new_chunk->is_free = 1;
-            new_chunk->next = current->next;
-
-            current->size = required_size;
-            current->next = new_chunk;
-        }
+        split_chunk(current, required_size);
 
         // update the free list head if needed
         if (prev == NULL) {
-            state.tiny->free_list = current->next;
+            zone->free_list = current->next;
         } else {
             prev->next = current->next;
         }
@@ -82,5 +73,15 @@ void malloc_state_deinit(void) {
     if (state.small) {
         free_zone(state.small);
     }
+}
+
+zone* get_available_zone(size_t size) {
+    // TODO: check if the zone is full and check next one or create it
+    if (size <= TINY_MAX_ALLOC_SIZE) {
+        return state.tiny;
+    } else {
+        return state.small;
+    }
+    return NULL;
 }
 

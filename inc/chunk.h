@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define CHUNK_HEADER_SIZE (sizeof(chunk))
+#define CHUNK_HEADER_SIZE (sizeof(uint64_t) + sizeof(struct s_chunk*) + sizeof(int))
 
 #define prev_inuse      0x1
 #define is_mmapped      0x2
@@ -14,11 +14,11 @@
 
 typedef struct s_chunk chunk;
 
-// #define next_chunk(p) ((chunkptr)((char*)(p) + ((p)->size & ~size_bits)))
+#define next_chunk(p) ((chunkptr)((char*)(p) + ((p)->size & ~size_bits)))
 
 typedef struct s_chunk {
     // uint64_t prev_size;     // size of prev chunk, if it is free
-    uint64_t size;          // size in bytes, including overhead
+    uint64_t size;
     struct s_chunk* next;
     int is_free;
 } chunk;
