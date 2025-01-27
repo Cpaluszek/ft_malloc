@@ -9,26 +9,36 @@ SRC_DIR := src
 INCLUDE_DIR := inc
 BUILD_DIR := build
 
-SRC_FILES := malloc.c show_alloc_mem.c
+SRC_FILES := malloc.c show_alloc_mem.c zone.c
 SRCS := $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 OBJS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 DEPS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.d)
 CC_DEFS := NAME=\"$(NAME)\"
 
 CC := gcc
-CC_FLAGS := -Wextra -Wall -Werror -fPIC -g3
+CC_FLAGS := -Wextra -Wall -Werror -fPIC
 LD_FLAGS := -shared
 
 CC_DEPS_FLAGS	:=	-MP -MMD
 CC_DEFS_FLAGS	:=	$(foreach def,$(CC_DEFS),-D $(def))
 
-LIBFT_DIR := libft
-LIBFT := $(LIBFT_DIR)/libft.a
+LINKAGE = $(SYMLINK)
+
+DEBUG ?= 1
+
+ifeq ($(DEBUG), 1)
+CC_FLAGS += -g3 -fsanitize=address
+LD_FLAGS += -fsanitize=address
+LINKAGE = $(shell gcc -print-file-name=libasan.so):$(SYMLINK)
+else
+CC_FLAGS += -O2
+LD_FLAGS +=
+endif
 
 all: $(NAME) $(SYMLINK)
 
-$(NAME): $(LIBFT) $(OBJS)
-	$(CC) $(LD_FLAGS) $(OBJS) $(CXX_LIBS) $(LIBFT) -o $@
+$(NAME): $(OBJS)
+	$(CC) $(LD_FLAGS) $(OBJS) $(CXX_LIBS) -o $@
 
 $(SYMLINK): $(NAME)
 	@ln -sf $(NAME) $(SYMLINK)
@@ -37,26 +47,20 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CC_FLAGS) $(CC_DEPS_FLAGS) $(CC_DEFS_FLAGS) -I$(INCLUDE_DIR) -c $< -o $@
 
-$(LIBFT): force
-	$(MAKE) -C $(LIBFT_DIR)
-
 -include $(DEPS)
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	$(MAKE) -C $(LIBFT_DIR) clean
+	$(MAKE) -C test clean
 
 fclean: clean
 	rm -f $(NAME) $(SYMLINK)
-	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
-test: force all
-	$(MAKE) -C test
+test: all
+	$(MAKE) -C test DEBUG=$(DEBUG)
 	@echo "--- TESTS ---"
-	@LD_PRELOAD=$(SYMLINK) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test
-
-force:
+	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=0
 
 .PHONY: all clean fclean re

@@ -3,13 +3,16 @@
 
 // NOTE: show_alloc_mem print aligned memory and not real allocation
 void show_alloc_mem(void) {
+    printf("===== MEMORY LAYOUT =====\n");
     printf("TINY:\t%p\n", state.tiny);
     show_zone_mem(state.tiny);
     printf("SMALL:\t%p\n", state.small);
     show_zone_mem(state.small);
+    printf("\n");
 }
 
 void show_zone_mem(zone* zone) {
+    // TODO: iterate on zones
     if (zone == NULL) {
         return;
     }
@@ -20,7 +23,8 @@ void show_zone_mem(zone* zone) {
             void* payload_start = (void*)((char*)current + CHUNK_HEADER_SIZE);
             void* payload_end = (void*)((char*)payload_start + (current->size - CHUNK_HEADER_SIZE));
             uint64_t allocated_size = current->size - CHUNK_HEADER_SIZE;
-            printf("%p - %p : %lu bytes\n", payload_start, payload_end, allocated_size);
+            printf("> Chunk: %p\n", current);
+            printf("  | Payload: [%p - %p] | Size:  %lu bytes\n", payload_start, payload_end, allocated_size);
         }
         current = current->next;
     }

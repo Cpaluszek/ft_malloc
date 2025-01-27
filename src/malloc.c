@@ -1,11 +1,14 @@
 #include "malloc.h"
 #include "chunk.h"
 #include <stdint.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
 
 malloc_state state;
+
+// TODO: make calloc()
 
 void* my_malloc(size_t size) {
     if (size <= 0) {
@@ -56,8 +59,8 @@ void* my_malloc(size_t size) {
     return NULL;
 }
 
-__attribute__((constructor))
-void mallooc_state_init(void) {
+__attribute__((constructor(101)))
+void malloc_state_init(void) {
     state.tiny = init_zone(TINY_HEAP_SIZE);
     if (state.tiny == NULL) {
         exit(1);  // TODO: manage error properly
@@ -65,30 +68,19 @@ void mallooc_state_init(void) {
 
     state.small = init_zone(SMALL_HEAP_SIZE);
     if (state.small == NULL) {
-        munmap(state.tiny, state.tiny->size);
+        free_zone(state.tiny);
         exit(1);
     }
 }
 
-__attribute__((destructor))
+__attribute__((destructor(101)))
 void malloc_state_deinit(void) {
-}
-
-zone* init_zone(uint64_t size) {
-    zone* z = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-    if (z == NULL) {
-        return NULL;
+    // TODO: check error
+    if (state.tiny) {
+        free_zone(state.tiny);
     }
-
-    chunkptr initial_chunk = (chunkptr)z->data;
-    initial_chunk->size = z->size - sizeof(zone);   // NOTE: sizeof() might not work because of char data[]
-    initial_chunk->is_free = 1;
-    initial_chunk->next = NULL;
-
-    z->size = size;
-    z->next = NULL;
-    z->free_list = initial_chunk;
-    return z;
+    if (state.small) {
+        free_zone(state.small);
+    }
 }
-
 
