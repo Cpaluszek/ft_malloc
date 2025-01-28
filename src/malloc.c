@@ -85,7 +85,14 @@ void malloc_state_deinit(void) {
     if (state.small) {
         free_zone(state.small);
     }
-    // TODO: free large
+    chunkptr next;
+    while (state.large_chunks != NULL) {
+        next = state.large_chunks->next;
+        if (munmap(state.large_chunks, state.large_chunks->size) != 0) {
+            printf_fd(STDERR, "Error: %s", strerror(errno));
+        }
+        state.large_chunks = next;
+    }
 }
 
 zone* get_available_zone(size_t size) {

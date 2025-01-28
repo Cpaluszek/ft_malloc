@@ -22,8 +22,7 @@ void free_zone(zone* z) {
     zone* next = NULL;
     while (z != NULL) {
         next = z->next;
-        int res = munmap(z, z->size);
-        if (res != 0) {
+        if (munmap(z, z->size) != 0) {
             printf_fd(STDERR, "Error: %s", strerror(errno));
         }
         z = next;
