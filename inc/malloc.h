@@ -31,11 +31,12 @@ void *my_malloc(size_t size);
 void *my_realloc(void* ptr, size_t size);
 void my_free(void* ptr);
 
+void show_alloc_mem(void);
+
 void mallc_state_init(void);
 void malloc_state_deinit(void);
 
-void show_alloc_mem(void);
-
 zone* get_available_zone(size_t size);
+void* allocate_large_chunk(size_t size);
 
 #endif // MALLOC_H

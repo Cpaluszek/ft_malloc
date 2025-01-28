@@ -39,22 +39,26 @@ void* my_malloc(size_t size) {
         }
         return (void*)((char*)current + CHUNK_HEADER_SIZE);
     } else {
-        size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
-
-        chunkptr new = mmap(NULL, required_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
-        if (new == MAP_FAILED) {
-            printf_fd(STDERR, "Error mmap: %s", strerror(errno));
-            // TODO: manage error
-        }
-        new->size = required_size;
-        set_chunk_in_use(new);
-        new->next = NULL;
-
-        chunk_add_back(&state.large_chunks, new);
-        return (void*)((char*)new + CHUNK_HEADER_SIZE);
+        return allocate_large_chunk(size);
     }
 
     return NULL;
+}
+
+void* allocate_large_chunk(size_t size) {
+    size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
+
+    chunkptr new = mmap(NULL, required_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (new == MAP_FAILED) {
+        printf_fd(STDERR, "Error mmap: %s", strerror(errno));
+        // TODO: manage error
+    }
+    new->size = required_size;
+    set_chunk_in_use(new);
+    new->next = NULL;
+
+    chunk_add_back(&state.large_chunks, new);
+    return (void*)((char*)new + CHUNK_HEADER_SIZE);
 }
 
 __attribute__((constructor(101)))
