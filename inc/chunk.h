@@ -4,25 +4,34 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define CHUNK_HEADER_SIZE (sizeof(uint64_t) + sizeof(struct s_chunk*) + sizeof(int))
+#define CHUNK_HEADER_SIZE sizeof(chunk)
 
-#define prev_inuse      0x1
-#define is_mmapped      0x2
-#define non_main_arena  0x4
+#define SIZE_MASK (~0xF)
+#define FLAG_IN_USE 0x1
 
-// #define size_bits (prev_inuse | is_mmapped | non_main_arena)
+#define get_size(size) ((size) & SIZE_MASK)
+#define is_in_use(size) ((size) & FLAG_IS_FREE)
+
+#define set_is_free(size) ((size) | FLAG_IS_FREE)
+#define clear_is_free(size) ((size) & ~FLAG_IS_FREE)
 
 typedef struct s_chunk chunk;
 
-#define next_chunk(p) ((chunkptr)((char*)(p) + ((p)->size & ~size_bits)))
+// #define next_chunk(p) ((chunkptr)((char*)(p) + ((p)->size & ~size_bits)))
 
 typedef struct s_chunk {
-    // uint64_t prev_size;     // size of prev chunk, if it is free
     uint64_t size;
     struct s_chunk* next;
-    int is_free;
 } chunk;
 
 typedef struct s_chunk* chunkptr;
+
+void chunk_add_back(chunkptr* lst, chunkptr new);
+
+void set_chunk_in_use(chunkptr c);
+void set_chunk_free(chunkptr c);
+int is_chunk_free(chunkptr c);
+
+size_t get_chunk_size(chunkptr c);
 
 #endif

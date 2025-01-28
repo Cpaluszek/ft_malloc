@@ -61,5 +61,26 @@
     "directory": "/home/noon/ft_malloc",
     "file": "/home/noon/ft_malloc/src/zone.c",
     "output": "/home/noon/ft_malloc/build/zone.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wextra",
+      "-Wall",
+      "-Werror",
+      "-fPIC",
+      "-g3",
+      "-fsanitize=address",
+      "-D",
+      "NAME=\"libft_malloc_x86_64.so\"",
+      "-Iinc",
+      "-c",
+      "-o",
+      "build/chunk.o",
+      "src/chunk.c"
+    ],
+    "directory": "/home/noon/ft_malloc",
+    "file": "/home/noon/ft_malloc/src/chunk.c",
+    "output": "/home/noon/ft_malloc/build/chunk.o"
   }
 ]

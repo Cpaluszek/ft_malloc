@@ -16,10 +16,7 @@ static inline size_t align_to_16(size_t size) {
 }
 
 void* my_malloc(size_t size) {
-    if (size <= 0) {
-        return NULL;
-    }
-
+    // Allocate Tiny and Small
     if (size <= SMALL_MAX_ALLOC_SIZE) {
         zone* zone = get_available_zone(size);
 
@@ -33,8 +30,6 @@ void* my_malloc(size_t size) {
             return NULL; // out of memory
         }
 
-        current->is_free = 0;
-
         // If there's excess space, split the chunk
         split_chunk(current, required_size);
 
@@ -45,6 +40,21 @@ void* my_malloc(size_t size) {
             prev->next = current->next;
         }
         return (void*)((char*)current + CHUNK_HEADER_SIZE);
+    } else {
+        size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
+        printf(" . Large: %ld - aligned: %ld\n", size, required_size);
+
+        chunkptr new = mmap(NULL, required_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+        if (new == MAP_FAILED) {
+            fprintf(stderr, "Error mmap: %s", strerror(errno));
+            // TODO: manage error
+        }
+        new->size = required_size;
+        set_chunk_in_use(new);
+        new->next = NULL;
+
+        chunk_add_back(&state.large_chunks, new);
+        return (void*)((char*)new + CHUNK_HEADER_SIZE);
     }
 
     return NULL;
@@ -62,6 +72,7 @@ void malloc_state_init(void) {
         free_zone(state.tiny);
         exit(1);
     }
+    state.large_chunks = NULL;
 }
 
 __attribute__((destructor(101)))
@@ -73,6 +84,7 @@ void malloc_state_deinit(void) {
     if (state.small) {
         free_zone(state.small);
     }
+    // TODO: free large
 }
 
 zone* get_available_zone(size_t size) {
