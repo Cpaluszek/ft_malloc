@@ -35,7 +35,6 @@ void mallc_state_init(void);
 void malloc_state_deinit(void);
 
 void show_alloc_mem(void);
-void show_zone_mem(zone* zone);
 
 zone* get_available_zone(size_t size);
 

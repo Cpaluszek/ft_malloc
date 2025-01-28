@@ -16,7 +16,6 @@ static inline size_t align_to_16(size_t size) {
 }
 
 void* my_malloc(size_t size) {
-    // Allocate Tiny and Small
     if (size <= SMALL_MAX_ALLOC_SIZE) {
         zone* zone = get_available_zone(size);
 
