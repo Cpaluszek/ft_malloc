@@ -1,10 +1,9 @@
 #include "zone.h"
-#include "chunk.h"
 
 zone* init_zone(uint64_t size) {
     zone* z = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (z == MAP_FAILED) {
-        fprintf(stderr, "Error mmap: %s", strerror(errno));
+        printf_fd(STDERR, "Error mmap: %s", strerror(errno));
         return NULL;
     }
     z->size = size;
@@ -25,7 +24,7 @@ void free_zone(zone* z) {
         next = z->next;
         int res = munmap(z, z->size);
         if (res != 0) {
-            fprintf(stderr, "Error: %s", strerror(errno));
+            printf_fd(STDERR, "Error: %s", strerror(errno));
         }
         z = next;
     }

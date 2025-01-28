@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include "zone.h"
 #include "chunk.h"
+#include "zone.h"
 
 #define PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 

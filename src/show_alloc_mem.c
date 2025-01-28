@@ -1,6 +1,5 @@
 #include "chunk.h"
 #include "malloc.h"
-#include <stdio.h>
 
 void show_zone_mem(zone* z);
 void show_chunks_mem(chunkptr c, int is_large);
@@ -8,12 +7,12 @@ void print_chunk_info(chunkptr c, int is_large);
 
 // NOTE: show_alloc_mem print aligned memory and not real allocation
 void show_alloc_mem(void) {
-    printf("===== MEMORY LAYOUT =====\n");
+    printf_fd(STDOUT, "===== MEMORY LAYOUT =====\n");
 
-    printf("TINY:\t%p\n", state.tiny);
+    printf_fd(STDOUT, "TINY:\t%p\n", state.tiny);
     show_zone_mem(state.tiny);
 
-    printf("SMALL:\t%p\n", state.small);
+    printf_fd(STDOUT, "SMALL:\t%p\n", state.small);
     show_zone_mem(state.small);
 
     if (state.large_chunks != NULL) {
@@ -47,12 +46,12 @@ void print_chunk_info(chunkptr c, int is_large) {
 
     void* payload_start = (void*)((char*)c + CHUNK_HEADER_SIZE);
     void* payload_end = (void*)((char*)payload_start + (c->size - CHUNK_HEADER_SIZE));
-    uint64_t allocated_size = get_chunk_size(c) - CHUNK_HEADER_SIZE;
+    size_t allocated_size = get_chunk_size(c) - CHUNK_HEADER_SIZE;
     if (is_large) {
-        printf("LARGE:\t%p\n", c);
+        printf_fd(STDOUT, "LARGE:\t%p\n", c);
     } else {
-        printf("> Chunk: %p\n", c);
+        printf_fd(STDOUT, "> Chunk: %p\n", c);
     }
-    printf("  | Payload: [%p - %p] | Size:  %lu bytes\n", payload_start, payload_end, allocated_size);
+    printf_fd(STDOUT, "  | Payload: [%p - %p] | Size:  %u bytes\n", payload_start, payload_end, allocated_size);
 }
 

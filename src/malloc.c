@@ -5,7 +5,6 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <stdio.h>
 
 malloc_state state;
 
@@ -41,11 +40,10 @@ void* my_malloc(size_t size) {
         return (void*)((char*)current + CHUNK_HEADER_SIZE);
     } else {
         size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
-        printf(" . Large: %ld - aligned: %ld\n", size, required_size);
 
         chunkptr new = mmap(NULL, required_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
         if (new == MAP_FAILED) {
-            fprintf(stderr, "Error mmap: %s", strerror(errno));
+            printf_fd(STDERR, "Error mmap: %s", strerror(errno));
             // TODO: manage error
         }
         new->size = required_size;

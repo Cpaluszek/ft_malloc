@@ -3,9 +3,9 @@
 
 #include "chunk.h"
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include "print.h"
 #include <sys/mman.h>
 
 typedef struct s_zone {
