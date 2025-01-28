@@ -23,6 +23,9 @@ ParameterizedTestParameters(malloc, simple) {
 ParameterizedTestParameters(malloc, read_write) {
     return cr_make_param_array(size_t, params, nb_params);
 }
+ParameterizedTestParameters(calloc, calloc) {
+    return cr_make_param_array(size_t, params, nb_params);
+}
 
 int is_memory_algigned(void *ptr) {
     return ((uintptr_t)ptr % (2 * sizeof(size_t))) == 0;
@@ -31,7 +34,6 @@ int is_memory_algigned(void *ptr) {
 ParameterizedTest(size_t* size, malloc, simple) {
     void *ptr = my_malloc(*size);
     cr_assert_not_null(ptr, "malloc failed to allocate memory (%ld)", *size);
-    show_alloc_mem();
     cr_assert(is_memory_algigned(ptr), "address %p is not aligned for size: %ld", ptr, *size);
     // my_free(ptr);
 }
@@ -39,10 +41,18 @@ ParameterizedTest(size_t* size, malloc, simple) {
 ParameterizedTest(size_t* size, malloc, read_write) {
     char* ptr = my_malloc(*size);
     cr_assert_not_null(ptr, "malloc failed to allocate memory (%ld)", *size);
-    show_alloc_mem();
     memset(ptr, 'A', *size);
     for (size_t i = 0; i < *size; i++) {
         cr_assert_eq(ptr[i], 'A', "Memory content mismatch at index %zu", i);
+    }
+    // my_free(ptr);
+}
+
+ParameterizedTest(size_t* size, calloc, calloc) {
+    char* ptr = my_calloc(*size);
+    cr_assert_not_null(ptr, "malloc failed to allocate memory (%ld)", *size);
+    for (size_t i = 0; i < *size; i++) {
+        cr_assert_eq(ptr[i], 0, "Memory content mismatch at index %zu", i);
     }
     // my_free(ptr);
 }

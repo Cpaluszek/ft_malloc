@@ -45,6 +45,17 @@ void* my_malloc(size_t size) {
     return NULL;
 }
 
+void *my_calloc(size_t size) {
+    char* ptr = my_malloc(size);
+
+    if (ptr == NULL) {
+        return NULL;
+    }
+
+    ft_bzero(ptr, size);
+    return ptr;
+}
+
 void* allocate_large_chunk(size_t size) {
     size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
 

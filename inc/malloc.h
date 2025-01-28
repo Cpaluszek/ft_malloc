@@ -30,6 +30,7 @@ extern malloc_state state;
 void *my_malloc(size_t size);
 void *my_realloc(void* ptr, size_t size);
 void my_free(void* ptr);
+void *my_calloc(size_t size);
 
 void show_alloc_mem(void);
 
@@ -38,5 +39,8 @@ void malloc_state_deinit(void);
 
 zone* get_available_zone(size_t size);
 void* allocate_large_chunk(size_t size);
+
+// Utils
+void ft_bzero(void* s, size_t n);
 
 #endif // MALLOC_H
