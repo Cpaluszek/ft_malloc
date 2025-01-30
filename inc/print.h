@@ -12,6 +12,11 @@
 #define HEX_BASE_UPPER "0123456789ABCDEF"
 #define PTR_PREFIX "0x"
 
+#define COLOR_RED     "\033[31m"  // Red for used chunks
+#define COLOR_GREEN   "\033[32m"  // Green for free chunks
+#define COLOR_BLUE    "\033[34m"  // Blue for large chunks
+#define COLOR_RESET   "\033[0m"   // Reset color
+
 int printf_fd(int fd, const char *input, ...);
 int pick_conversion_fd(int fd, const char c, va_list args);
 int print_decimal_fd(const int nb, int fd);
