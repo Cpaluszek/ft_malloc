@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "chunk.h"
 #include "zone.h"
+#include "utils.h"
 
 #define PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 
@@ -40,9 +41,5 @@ void malloc_state_deinit(void);
 zone* get_available_zone(size_t size);
 size_t get_zone_size(size_t alloc_size);
 void* allocate_large_chunk(size_t size);
-
-void ft_bzero(void* s, size_t n);
-size_t align_to_16(size_t size);
-int is_aligned_to_16(void* ptr);
 
 #endif // MALLOC_H
