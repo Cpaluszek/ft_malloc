@@ -1,7 +1,7 @@
 #include "chunk.h"
 #include "malloc.h"
 
-void show_zone_mem(zone* z);
+void show_zone_mem(zone* z, char* zone_type);
 void show_chunks_mem(chunkptr c, int is_large);
 void print_chunk_info(chunkptr c, int is_large);
 
@@ -9,11 +9,9 @@ void print_chunk_info(chunkptr c, int is_large);
 void show_alloc_mem(void) {
     printf_fd(STDOUT, "===== MEMORY LAYOUT =====\n");
 
-    printf_fd(STDOUT, "%sTINY%s:\t%p\n", COLOR_BLUE, COLOR_RESET, state.tiny);
-    show_zone_mem(state.tiny);
+    show_zone_mem(state.tiny, "TINY");
 
-    printf_fd(STDOUT, "%sSMALL%s:\t%p\n", COLOR_BLUE, COLOR_RESET, state.small);
-    show_zone_mem(state.small);
+    show_zone_mem(state.small, "SMALL");
 
     if (state.large_chunks != NULL) {
         show_chunks_mem(state.large_chunks, 1);
@@ -21,15 +19,18 @@ void show_alloc_mem(void) {
     // TODO: total allocated
 }
 
-void show_zone_mem(zone* z) {
-    zone* current_zone = z;
-    while (current_zone != NULL) {
+void show_zone_mem(zone* z, char* zone_type) {
+    while (z != NULL) {
+        printf_fd(STDOUT, "%s%s%s:\t%p\n", COLOR_BLUE, zone_type, COLOR_RESET, z);
         chunkptr current = (chunkptr)z->data;
+        int chunk_count = 0;
         while (current != NULL && (char*)current != (char*)z + z->size) {
             print_chunk_info(current, 0);
+            chunk_count++;
             current = current->next;
         }
-        current_zone = current_zone->next;
+        printf_fd(STDOUT, "chunk_count: %d\n", chunk_count);
+        z = z->next;
     }
 }
 

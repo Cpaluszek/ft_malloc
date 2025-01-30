@@ -30,10 +30,9 @@ void free_zone(zone* z) {
     }
 }
 
-chunkptr find_free_chunk(zone* zone, size_t required_size) {
+chunkptr find_free_chunk(zone* z, size_t required_size) {
     chunkptr prev = NULL;
-    // TODO: remove the chunk from the free list
-    chunkptr current = zone->free_list;
+    chunkptr current = z->free_list;
     while (current != NULL) {
         if (is_chunk_free(current) && get_chunk_size(current) >= required_size) {
             break;
@@ -42,11 +41,14 @@ chunkptr find_free_chunk(zone* zone, size_t required_size) {
         prev = current;
         current = current->next;
     }
+    if (current == NULL) {
+        return NULL;
+    }
 
     split_chunk(current, required_size);
 
     if (prev == NULL) {
-        zone->free_list = current->next;
+        z->free_list = current->next;
     } else {
         prev->next = current->next;
     }

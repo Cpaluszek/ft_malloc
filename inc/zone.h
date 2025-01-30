@@ -16,10 +16,10 @@ typedef struct s_zone {
     char data[];            // Start of the actual memory for allocations
 } zone;
 
-void free_zone(zone* zone);
+void free_zone(zone *z);
 zone* init_zone(uint64_t size);
 
-chunkptr find_free_chunk(zone* zone, size_t required_size);
+chunkptr find_free_chunk(zone* z, size_t required_size);
 void split_chunk(chunkptr c, size_t size);
 void merge_chunk(chunkptr c);
 
