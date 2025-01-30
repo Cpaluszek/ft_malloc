@@ -57,7 +57,6 @@ chunkptr find_free_chunk(zone* z, size_t required_size) {
 }
 
 void split_chunk(chunkptr c, size_t size) {
-    // TODO: should check if the remaining space is large enough for another chunk
     if (get_chunk_size(c) > size + CHUNK_HEADER_SIZE) {
         chunkptr new_chunk = (chunkptr)((char*)c + size);
         new_chunk->size = get_chunk_size(c) - size;

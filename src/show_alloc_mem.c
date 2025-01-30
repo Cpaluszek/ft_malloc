@@ -60,6 +60,6 @@ size_t print_chunk_info(chunkptr c, int is_large) {
         return 0;
     }
     printf_fd(STDOUT, "%sUsed%s - [%p - %p] : %z bytes\n", COLOR_RED, COLOR_RESET, payload_start, payload_end, allocated_size);
-    return get_chunk_size(c);
+    return allocated_size;
 }
 

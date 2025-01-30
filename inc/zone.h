@@ -12,7 +12,7 @@ typedef struct s_zone {
     size_t size;            // Total size of the zone
     struct s_zone* next;    // Next zone
     chunkptr free_list;     // Ptr to the free list
-    uint64_t _padding;       // Data for alignment
+    uint64_t _padding;      // Data for alignment
     char data[];            // Start of the actual memory for allocations
 } zone;
 
