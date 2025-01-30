@@ -71,7 +71,6 @@ void split_chunk(chunkptr c, size_t size) {
 }
 
 void merge_chunk(chunkptr c) {
-    // TODO: move to chunk file?
     chunkptr next = c->next;
     if (next != NULL && is_chunk_free(next)) {
         c->size += get_chunk_size(next);

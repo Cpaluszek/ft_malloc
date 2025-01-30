@@ -18,8 +18,6 @@
 
 typedef struct s_chunk chunk;
 
-// #define next_chunk(p) ((chunkptr)((char*)(p) + ((p)->size & ~size_bits)))
-
 typedef struct s_chunk {
     uint64_t size;
     struct s_chunk* next;
@@ -28,6 +26,8 @@ typedef struct s_chunk {
 typedef struct s_chunk* chunkptr;
 
 void chunk_add_back(chunkptr* lst, chunkptr new);
+void split_chunk(chunkptr c, size_t size);
+void merge_chunk(chunkptr c);
 
 void set_chunk_in_use(chunkptr c);
 void set_chunk_free(chunkptr c);

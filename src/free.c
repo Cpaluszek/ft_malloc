@@ -21,7 +21,6 @@ void my_free(void* ptr) {
         return;
     }
 
-    // TODO: find the correct zone
     if (chunk_size <= TINY_CHUNK_SIZE) {
         free_chunk_in_zone(c, state.tiny);
     } else {
@@ -29,8 +28,26 @@ void my_free(void* ptr) {
     }
 }
 
+int is_chunk_in_zone(chunkptr c, zone* z) {
+    void* zone_start = (void*)((char*)z + sizeof(zone));
+    void* zone_end = (void*)((char*)z + z->size);
+
+    return (void*)c >= zone_start && (void*)c < zone_end;
+}
+
 void free_chunk_in_zone(chunkptr c, zone* z) {
-    // TODO: should add in the correct place
+    while (z != NULL) {
+        if (is_chunk_in_zone(c, z) == 1) {
+            break ;
+        }
+        z = z->next;
+    }
+
+    if (z == NULL) {
+        printf_fd(STDERR, "Error: Chunk at address %p does not belong to any zone\n", c);
+        return;
+    }
+
     chunkptr current = z->free_list;
     chunkptr prev = NULL;
 
@@ -40,14 +57,11 @@ void free_chunk_in_zone(chunkptr c, zone* z) {
         current = current->next;
     }
 
+    c->next = current;
     if (prev == NULL) {
-        // insert at head
-        c->next = current;
         z->free_list = c;
     } else {
-        // insert between
         prev->next = c;
-        c->next = current;
         merge_chunk(prev);
     }
     merge_chunk(c);

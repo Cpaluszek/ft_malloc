@@ -20,7 +20,6 @@ void free_zone(zone *z);
 zone* init_zone(uint64_t size);
 
 chunkptr find_free_chunk(zone* z, size_t required_size);
-void split_chunk(chunkptr c, size_t size);
-void merge_chunk(chunkptr c);
+int is_chunk_in_zone(chunkptr c, zone* z);
 
 #endif
