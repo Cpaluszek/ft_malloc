@@ -29,7 +29,7 @@ Implement a custom dynamic memory allocation library, including the following fu
 
 
 ## Concepts
-**Heap**
+**Heap / Zone**
 The "heap" is a contiguous region of memory managed by the allocator.
 - Grows dynamically during program execution.
 - Can be fragmented over time due to the allocation and deallocation of memory.
@@ -40,6 +40,61 @@ A chunk typically contains:
 - Header (metadata): Information about the size and state (allocated or free) of the chunk.
 - Payload: The memory returned to the user when malloc is called.
 
-**Arena**
-An "arena" is a data structure that contains and manages a collection of heaps.
-- Allows multiple threads to allocate memory concurrently without contention.
+
+## Memory zone layout - Tiny and small allocations
+Each zone contains a header and a list of chunks, some of which may be allocated (A, B, C), and others are free chunks.
+
+1. Zone After Initialization
+```
++---------------------------------------------------------------+
+| Zone Header | Free Chunk                                      |
++---------------------------------------------------------------+
+```
+The zone is initialized with only a free chunk available.
+
+2. Zone After One Allocation
+```
++---------------------------------------------------------------+
+| Zone Header | A | [Free Chunk]                                |
++---------------------------------------------------------------+
+```
+The first free chunk large enough is used to allocate A.
+If the chunk is large enough it will be split.
+
+The remaining space is still available for future allocations.
+
+3. Zone After Multiple Allocations
+```
++---------------------------------------------------------------+
+| Zone Header | A | B | C | [Free Chunk]                        |
++---------------------------------------------------------------+
+```
+Chunks A, B, and C are allocated.
+The remaining free space is after C.
+
+4. After Freeing Chunk B
+```
++---------------------------------------------------------------+
+| Zone Header | A | [Free Chunk] | C | [Free Chunk]             |
++---------------------------------------------------------------+
+```
+Chunk B is now freed.
+It is added back to the free list but remains between allocated chunks.
+
+5. After Freeing and Merging Free Chunks
+```
++---------------------------------------------------------------+
+| Zone Header | A | [Free Chunk]                                |
++---------------------------------------------------------------+
+```
+Chunk C is freed.
+The allocator merges adjacent free chunks into a larger free region.
+
+## Large allocations - Handled separately via `mmap()`
+Large allocations are managed separately from zones:
+```
++---------------------+    +---------------------+    +---------------------+
+| Large Chunk Header | -> | Large Chunk Header | -> | Large Chunk Header |
+| Allocated Data     |    | Allocated Data     |    | Allocated Data     |
++---------------------+    +---------------------+    +---------------------+
+```
