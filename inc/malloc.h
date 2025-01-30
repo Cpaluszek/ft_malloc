@@ -26,8 +26,6 @@ typedef struct s_malloc_state {
 
 extern malloc_state state;
 
-// TODO: do we want a top chunk?
-
 void *my_malloc(size_t size);
 void *my_realloc(void* ptr, size_t size);
 void my_free(void* ptr);

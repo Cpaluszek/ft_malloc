@@ -15,6 +15,7 @@ Implement a custom dynamic memory allocation library, including the following fu
 - `realloc(void *ptr, size_t size)` - Resizes the allocation at `ptr` to `size`. If insufficient space is available, it creates a new allocation, copies data, frees the old allocation, and returns a pointer to the new memory.
 - `free(void *ptr)` - Deallocates the memory at `ptr`. If `ptr` is `NULL`, no operation is performed.
 - `show_alloc_mem()` - Displays the current memory allocations, grouped into **TINY**, **SMALL**, and **LARGE** zones.
+  - This function print the aligned allocated memory.
 
 ### Requirements
 - Optimize for performance by minimizing system calls and pre-allocating memory zones.
