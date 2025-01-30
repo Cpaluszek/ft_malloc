@@ -1,4 +1,5 @@
 #include "zone.h"
+#include "chunk.h"
 
 zone* init_zone(uint64_t size) {
     zone* z = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
@@ -29,8 +30,9 @@ void free_zone(zone* z) {
     }
 }
 
-chunkptr find_free_chunk(zone* zone, size_t required_size, chunkptr prev) {
-    (void) prev;
+chunkptr find_free_chunk(zone* zone, size_t required_size) {
+    chunkptr prev = NULL;
+    // TODO: remove the chunk from the free list
     chunkptr current = zone->free_list;
     while (current != NULL) {
         if (is_chunk_free(current) && get_chunk_size(current) >= required_size) {
@@ -40,19 +42,38 @@ chunkptr find_free_chunk(zone* zone, size_t required_size, chunkptr prev) {
         prev = current;
         current = current->next;
     }
+
+    split_chunk(current, required_size);
+
+    if (prev == NULL) {
+        zone->free_list = current->next;
+    } else {
+        prev->next = current->next;
+    }
+
     return current;
 }
 
-void split_chunk(chunkptr chunk, size_t size) {
-    if (get_chunk_size(chunk) > size + CHUNK_HEADER_SIZE) {
-        chunkptr new_chunk = (chunkptr)((char*)chunk + size);
-        new_chunk->size = get_chunk_size(chunk) - size;
+void split_chunk(chunkptr c, size_t size) {
+    // TODO: should check if the remaining space is large enough for another chunk
+    if (get_chunk_size(c) > size + CHUNK_HEADER_SIZE) {
+        chunkptr new_chunk = (chunkptr)((char*)c + size);
+        new_chunk->size = get_chunk_size(c) - size;
         set_chunk_free(new_chunk);
-        new_chunk->next = chunk->next;
+        new_chunk->next = c->next;
 
-        chunk->size = size;
-        set_chunk_in_use(chunk);
-        chunk->next = new_chunk;
+        c->size = size;
+        set_chunk_in_use(c);
+        c->next = new_chunk;
     }
-
 }
+
+void merge_chunk(chunkptr c) {
+    // TODO: move to chunk file?
+    chunkptr next = c->next;
+    if (next != NULL && is_chunk_free(next)) {
+        c->size += get_chunk_size(next);
+        c->next = next->next;
+    }
+}
+

@@ -31,3 +31,11 @@ void set_chunk_free(chunkptr c) {
 int is_chunk_free(chunkptr c) {
     return (c->size & FLAG_IN_USE) == 0;
 }
+
+void set_chunk_mmap(chunkptr c) {
+    c->size |= FLAG_IS_MMAP;
+}
+
+int is_chunk_mmap(chunkptr c) {
+    return (c->size & FLAG_IS_MMAP);
+}

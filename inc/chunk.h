@@ -8,6 +8,7 @@
 
 #define SIZE_MASK (~0xF)
 #define FLAG_IN_USE 0x1
+#define FLAG_IS_MMAP 0x2
 
 #define get_size(size) ((size) & SIZE_MASK)
 #define is_in_use(size) ((size) & FLAG_IS_FREE)
@@ -31,6 +32,9 @@ void chunk_add_back(chunkptr* lst, chunkptr new);
 void set_chunk_in_use(chunkptr c);
 void set_chunk_free(chunkptr c);
 int is_chunk_free(chunkptr c);
+
+void set_chunk_mmap(chunkptr c);
+int is_chunk_mmap(chunkptr c);
 
 size_t get_chunk_size(chunkptr c);
 

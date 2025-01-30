@@ -8,35 +8,22 @@
 
 malloc_state state;
 
-// TODO: make calloc()
-
-static inline size_t align_to_16(size_t size) {
-    return (size + 15) &~ 15;
-}
-
 void* my_malloc(size_t size) {
     if (size <= SMALL_MAX_ALLOC_SIZE) {
         zone* zone = get_available_zone(size);
+        // TODO: if zone is NULL?
 
         size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
 
-        chunkptr prev = NULL;
-        chunkptr current = find_free_chunk(zone, required_size, prev);
+        chunkptr current = find_free_chunk(zone, required_size);
 
         if (current == NULL) {
             // TODO: we need a new zone
             return NULL; // out of memory
         }
 
-        // If there's excess space, split the chunk
-        split_chunk(current, required_size);
+        set_chunk_in_use(current);
 
-        // update the free list head if needed
-        if (prev == NULL) {
-            zone->free_list = current->next;
-        } else {
-            prev->next = current->next;
-        }
         return (void*)((char*)current + CHUNK_HEADER_SIZE);
     } else {
         return allocate_large_chunk(size);
@@ -48,11 +35,10 @@ void* my_malloc(size_t size) {
 void *my_calloc(size_t size) {
     char* ptr = my_malloc(size);
 
-    if (ptr == NULL) {
-        return NULL;
+    if (ptr != NULL) {
+        ft_bzero(ptr, size);
     }
 
-    ft_bzero(ptr, size);
     return ptr;
 }
 
@@ -62,10 +48,11 @@ void* allocate_large_chunk(size_t size) {
     chunkptr new = mmap(NULL, required_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (new == MAP_FAILED) {
         printf_fd(STDERR, "Error mmap: %s", strerror(errno));
-        // TODO: manage error
+        return NULL;
     }
     new->size = required_size;
     set_chunk_in_use(new);
+    set_chunk_mmap(new);
     new->next = NULL;
 
     chunk_add_back(&state.large_chunks, new);
@@ -99,8 +86,8 @@ void malloc_state_deinit(void) {
     chunkptr next;
     while (state.large_chunks != NULL) {
         next = state.large_chunks->next;
-        if (munmap(state.large_chunks, state.large_chunks->size) != 0) {
-            printf_fd(STDERR, "Error: %s", strerror(errno));
+        if (munmap(state.large_chunks, get_chunk_size(state.large_chunks)) != 0) {
+            printf_fd(STDERR, "Error: %s\n", strerror(errno));
         }
         state.large_chunks = next;
     }

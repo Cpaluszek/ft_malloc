@@ -103,5 +103,47 @@
     "directory": "/home/noon/ft_malloc",
     "file": "/home/noon/ft_malloc/src/print.c",
     "output": "/home/noon/ft_malloc/build/print.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wextra",
+      "-Wall",
+      "-Werror",
+      "-fPIC",
+      "-g3",
+      "-fsanitize=address",
+      "-D",
+      "NAME=\"libft_malloc_x86_64.so\"",
+      "-Iinc",
+      "-c",
+      "-o",
+      "build/utils.o",
+      "src/utils.c"
+    ],
+    "directory": "/home/noon/ft_malloc",
+    "file": "/home/noon/ft_malloc/src/utils.c",
+    "output": "/home/noon/ft_malloc/build/utils.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wextra",
+      "-Wall",
+      "-Werror",
+      "-fPIC",
+      "-g3",
+      "-fsanitize=address",
+      "-D",
+      "NAME=\"libft_malloc_x86_64.so\"",
+      "-Iinc",
+      "-c",
+      "-o",
+      "build/free.o",
+      "src/free.c"
+    ],
+    "directory": "/home/noon/ft_malloc",
+    "file": "/home/noon/ft_malloc/src/free.c",
+    "output": "/home/noon/ft_malloc/build/free.o"
   }
 ]
