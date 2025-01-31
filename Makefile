@@ -63,9 +63,9 @@ test: all
 	@echo "--- TESTS ---"
 	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 --filter 'multiple/*'
 
-test_time: all
+test_bonus: all
 	$(MAKE) -C test DEBUG=$(DEBUG)
 	@echo "--- TESTS ---"
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH /usr/bin/time ./test/test --verbose=2 -j1 --filter 'multiple/*'
+	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 --filter 'bonus/*' > hex_dump
 
 .PHONY: all clean fclean re

@@ -32,6 +32,7 @@ void my_free(void* ptr);
 void *my_calloc(size_t size);
 
 void show_alloc_mem(void);
+void show_alloc_mem_ex(void);
 
 void mallc_state_init(void);
 void malloc_state_deinit(void);

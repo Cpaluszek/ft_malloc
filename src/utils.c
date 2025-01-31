@@ -23,3 +23,7 @@ size_t align_to_16(size_t size) {
 int is_aligned_to_16(void *ptr) {
     return ((uintptr_t)ptr & 15) == 0;
 }
+
+int ft_isprint(int c) {
+    return (c >= 32 && c <= 126);
+}

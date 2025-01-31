@@ -198,32 +198,37 @@ Test(realloc, realloc_null_ptr) {
     my_free(new_ptr);
 }
 
+Test(bonus, hex_dump) {
+    void* str = my_malloc(32);
+    cr_assert_not_null(str, "malloc failed to allocate memory (32)");
+    if (str) {
+        strcpy(str, "Hello, memory allocation!");
+    }
+    show_alloc_mem_ex();
+    my_free(str);
+}
+
 Test(multiple, multiple) {
-    // size_t M = 1024 * 1024;
-    show_alloc_mem();
+    size_t M = 1024 * 1024;
     void* a = my_malloc(1);
+    a = my_malloc(2);
+    a = my_malloc(4);
+    a = my_malloc(8);
+    a = my_malloc(16);
+    a = my_malloc(32);
+    a = my_malloc(64);
+    a = my_malloc(128);
+    a = my_malloc(256);
+    a = my_malloc(512);
+    a = my_malloc(1024);
+    a = my_malloc(1024 * 2);
+    a = my_malloc(1024 * 4); 
+    a = my_malloc(1024 * 32);
+    a = my_malloc(M);
+    a = my_malloc(16*M);
+    a = my_malloc(128*M);
     show_alloc_mem();
     my_free(a);
-    show_alloc_mem();
-    a = my_malloc(2);
-    show_alloc_mem();
-    // a = my_malloc(4);
-    // a = my_malloc(8);
-    // a = my_malloc(16);
-    // a = my_malloc(32);
-    // a = my_malloc(64);
-    // a = my_malloc(128);
-    // a = my_malloc(256);
-    // a = my_malloc(512);
-    // a = my_malloc(1024);
-    // a = my_malloc(1024 * 2);
-    // a = my_malloc(1024 * 4); 
-    // a = my_malloc(1024 * 32);
-    // a = my_malloc(M);
-    // a = my_malloc(16*M);
-    // a = my_malloc(128*M);
-    // show_alloc_mem(); 
-    // my_free(a);
 }
 // /*
 // #define M (1024 * 1024)
