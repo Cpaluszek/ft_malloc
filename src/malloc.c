@@ -1,4 +1,5 @@
 #include "malloc.h"
+#include "chunk.h"
 
 extern malloc_state state;
 
@@ -19,7 +20,11 @@ void* my_malloc(size_t size) {
 
         if (current != NULL) {
             set_chunk_in_use(current);
-            return (void*)((char*)current + CHUNK_HEADER_SIZE);
+            void *ptr = (void*)((char*)current + CHUNK_HEADER_SIZE);
+            if (state.perturb != 0) {
+                ft_memset(ptr, state.perturb, get_chunk_size(current) - CHUNK_HEADER_SIZE); 
+            }
+            return ptr;
         }
 
         last_zone = zone_list;
@@ -41,8 +46,13 @@ void* my_malloc(size_t size) {
         return NULL;
     }
 
+    void *ptr = (void*)((char*)current + CHUNK_HEADER_SIZE);
     set_chunk_in_use(current);
-    return (void*)((char*)current + CHUNK_HEADER_SIZE);
+    if (state.perturb != 0) {
+        ft_memset(ptr, state.perturb, get_chunk_size(current) - CHUNK_HEADER_SIZE); 
+    }
+
+    return ptr;
 }
 
 void *my_calloc(size_t size) {
@@ -68,8 +78,13 @@ void* allocate_large_chunk(size_t size) {
     set_chunk_mmap(new);
     new->next = NULL;
 
+    void *ptr = (void*)((char*)new + CHUNK_HEADER_SIZE);
+    if (state.perturb != 0) {
+        ft_memset(ptr, state.perturb, get_chunk_size(new) - CHUNK_HEADER_SIZE); 
+    }
+
     chunk_add_back(&state.large_chunks, new);
-    return (void*)((char*)new + CHUNK_HEADER_SIZE);
+    return ptr;
 }
 
 zone* get_available_zone(size_t size) {

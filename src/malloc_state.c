@@ -1,4 +1,5 @@
 #include "malloc.h"
+#include <stdint.h>
 
 malloc_state state;
 
@@ -15,6 +16,13 @@ void malloc_state_init(void) {
         exit(1);
     }
     state.large_chunks = NULL;
+
+    char *env = getenv("MALLOC_PERTURB_");
+    if (env) {
+        state.perturb = (uint8_t)atoi(env);
+    } else {
+        state.perturb = 0;
+    }
 }
 
 __attribute__((destructor(101)))

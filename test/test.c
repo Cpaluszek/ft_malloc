@@ -208,6 +208,17 @@ Test(bonus, hex_dump) {
     my_free(str);
 }
 
+Test(bonus, perturb) {
+    void* ptr = my_malloc(TINY_MAX_ALLOC_SIZE);
+    cr_assert_not_null(ptr, "malloc failed to allocate memory");
+    show_alloc_mem();
+    show_alloc_mem_ex();
+
+    my_free(ptr);
+    show_alloc_mem();
+    show_alloc_mem_ex();
+}
+
 Test(multiple, multiple) {
     size_t M = 1024 * 1024;
     void* a = my_malloc(1);

@@ -10,6 +10,11 @@ void my_free(void* ptr) {
     if (is_aligned_to_16(ptr) == 0) return;
 
     chunkptr c = get_chunk_from_ptr(ptr);
+
+    if (state.perturb != 0) {
+        ft_memset(ptr, state.perturb ^ 0xFF, get_chunk_size(c) - CHUNK_HEADER_SIZE); 
+    }
+
     if (is_chunk_free(c)) return;
 
     size_t chunk_size = get_chunk_size(c);

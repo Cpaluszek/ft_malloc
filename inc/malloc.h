@@ -22,6 +22,7 @@ typedef struct s_malloc_state {
     zone*   small;
     chunkptr large_chunks;
     size_t page_size;
+    uint8_t perturb;
 } malloc_state;
 
 extern malloc_state state;
