@@ -8,12 +8,19 @@ void chunk_add_back(chunkptr* lst, chunkptr new) {
     chunkptr last;
 
     last = *lst;
-    while (last && last->next)
+    while (last && last->next) {
         last = last->next;
-    if (last)
+    }
+
+    if (last) {
         last->next = new;
-    else
+    } else {
         *lst = new;
+    }
+}
+
+chunkptr get_chunk_from_ptr(void *ptr) {
+    return (chunkptr) ((char*)ptr - CHUNK_HEADER_SIZE);
 }
 
 size_t get_chunk_size(chunkptr c) {

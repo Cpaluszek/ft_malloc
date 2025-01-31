@@ -10,12 +10,6 @@
 #define FLAG_IN_USE 0x1
 #define FLAG_IS_MMAP 0x2
 
-#define get_size(size) ((size) & SIZE_MASK)
-#define is_in_use(size) ((size) & FLAG_IS_FREE)
-
-#define set_is_free(size) ((size) | FLAG_IS_FREE)
-#define clear_is_free(size) ((size) & ~FLAG_IS_FREE)
-
 typedef struct s_chunk chunk;
 
 typedef struct s_chunk {
@@ -26,8 +20,7 @@ typedef struct s_chunk {
 typedef struct s_chunk* chunkptr;
 
 void chunk_add_back(chunkptr* lst, chunkptr new);
-void split_chunk(chunkptr c, size_t size);
-void merge_chunk(chunkptr c);
+chunkptr get_chunk_from_ptr(void* ptr);
 
 void set_chunk_in_use(chunkptr c);
 void set_chunk_free(chunkptr c);

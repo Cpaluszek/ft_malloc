@@ -3,10 +3,16 @@
 
 void ft_bzero(void *ptr, size_t n) {
     char *s = ptr;
-    size_t i = 0;
-    while (i < n) {
+    for (size_t i = 0; i < n; i++) {
         s[i] = 0;
-        i++;
+    }
+}
+
+void memory_copy(void *dst, const void *src, size_t n) {
+    uint8_t* dst_array = dst;
+    const uint8_t* src_array = src;
+    for (size_t i = 0; i < n; i++) {
+        dst_array[i] = src_array[i];
     }
 }
 

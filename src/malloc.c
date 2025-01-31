@@ -2,7 +2,6 @@
 
 extern malloc_state state;
 
-// TODO: realloc(0) == free
 // TODO: rename my_function() to function()
 
 void* my_malloc(size_t size) {

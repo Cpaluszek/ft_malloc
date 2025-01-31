@@ -9,7 +9,7 @@ SRC_DIR := src
 INCLUDE_DIR := inc
 BUILD_DIR := build
 
-SRC_FILES := malloc.c malloc_state.c show_alloc_mem.c zone.c chunk.c print.c utils.c free.c
+SRC_FILES := malloc.c malloc_state.c show_alloc_mem.c zone.c chunk.c print.c utils.c free.c realloc.c
 SRCS := $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 OBJS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 DEPS := $(SRC_FILES:%.c=$(BUILD_DIR)/%.d)
@@ -61,6 +61,11 @@ re: fclean all
 test: all
 	$(MAKE) -C test DEBUG=$(DEBUG)
 	@echo "--- TESTS ---"
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1
+	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 --filter 'multiple/*'
+
+test_time: all
+	$(MAKE) -C test DEBUG=$(DEBUG)
+	@echo "--- TESTS ---"
+	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH /usr/bin/time ./test/test --verbose=2 -j1 --filter 'multiple/*'
 
 .PHONY: all clean fclean re

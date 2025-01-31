@@ -9,7 +9,7 @@ void my_free(void* ptr) {
     if (ptr == NULL) return;
     if (is_aligned_to_16(ptr) == 0) return;
 
-    chunkptr c = (chunkptr) ((char*)ptr - CHUNK_HEADER_SIZE);
+    chunkptr c = get_chunk_from_ptr(ptr);
     if (is_chunk_free(c)) return;
 
     size_t chunk_size = get_chunk_size(c);
@@ -21,18 +21,7 @@ void my_free(void* ptr) {
         return;
     }
 
-    if (chunk_size <= TINY_CHUNK_SIZE) {
-        free_chunk_in_zone(c, state.tiny);
-    } else {
-        free_chunk_in_zone(c, state.small);
-    }
-}
-
-int is_chunk_in_zone(chunkptr c, zone* z) {
-    void* zone_start = (void*)((char*)z + sizeof(zone));
-    void* zone_end = (void*)((char*)z + z->size);
-
-    return (void*)c >= zone_start && (void*)c < zone_end;
+    free_chunk_in_zone(c, get_available_zone(chunk_size - CHUNK_HEADER_SIZE));
 }
 
 void free_chunk_in_zone(chunkptr c, zone* z) {
@@ -48,23 +37,7 @@ void free_chunk_in_zone(chunkptr c, zone* z) {
         return;
     }
 
-    chunkptr current = z->free_list;
-    chunkptr prev = NULL;
-
-    // Find the correct place in the free_list
-    while (current != NULL && current < c) {
-        prev = current;
-        current = current->next;
-    }
-
-    c->next = current;
-    if (prev == NULL) {
-        z->free_list = c;
-    } else {
-        prev->next = c;
-        merge_chunk(prev);
-    }
-    merge_chunk(c);
+    insert_chunk_in_free_list(c, z);
 }
 
 void free_large_chunk(chunkptr c) {

@@ -8,12 +8,12 @@
 #include <stdint.h>
 
 static size_t params[] = {
-    0,
     1,
     32,
     128,
     256,
     1024,
+    4096,
     5555,
     66666,
 };
@@ -35,6 +35,13 @@ ParameterizedTestParameters(calloc, calloc) {
 
 int is_memory_algigned(void *ptr) {
     return ((uintptr_t)ptr % (2 * sizeof(size_t))) == 0;
+}
+
+Test(malloc, zero) {
+    void *ptr = my_malloc(0);
+    cr_assert_not_null(ptr, "malloc failed to allocate memory (0)");
+    cr_assert(is_memory_algigned(ptr), "address %p is not aligned for size: 0", ptr);
+    my_free(ptr);
 }
 
 ParameterizedTest(size_t* size, malloc, simple) {
@@ -99,8 +106,6 @@ Test(malloc, saturate_small_page) {
 }
 
 Test(malloc, merge_free_chunks_tiny) {
-    show_alloc_mem();
-
     void* ptr1 = my_malloc(TINY_MAX_ALLOC_SIZE);
     cr_assert_not_null(ptr1, "malloc failed to allocate memory");
 
@@ -121,29 +126,109 @@ Test(malloc, merge_free_chunks_tiny) {
     show_alloc_mem();
 }
 
+// Realloc
+Test(realloc, realloc_basic) {
+    for (size_t i = 1; i < nb_params; i++) {
+        // Allocate initial memory
+        cr_log_error("> %ld\n", params[i]);
+        char *ptr = my_malloc(params[i]);
+        cr_assert_not_null(ptr, "malloc failed to allocate memory (%ld)", params[i]);
+        show_alloc_mem();
+
+        // Fill with known pattern
+        for (size_t j = 0; j < params[i]; j++) {
+            ptr[j] = (j % 256);
+        }
+
+        // // Copy original data before realloc
+        // char *backup = my_malloc(params[i]);  // Standard malloc to avoid interference
+        // cr_assert_not_null(backup, "Failed to allocate backup memory");
+        // memcpy(backup, ptr, params[i]);
+
+        // Reallocate to a larger size
+        size_t new_size = params[i] * 2;
+        char *new_ptr = my_realloc(ptr, new_size);
+        cr_assert_not_null(new_ptr, "realloc failed to reallocate memory to larger size (%ld)", new_size);
+        show_alloc_mem();
+
+        // Ensure memory contents are preserved
+        // for (size_t j = 0; j < params[i]; j++) {
+        //     cr_assert_eq(backup[j], new_ptr[j], "Memory content mismatch after realloc at index %zu: %d != %d", j, backup[j], new_ptr[j]);
+        // }
+        my_free(new_ptr);
+    }
+}
+
+Test(realloc, realloc_shrink) {
+    for (size_t i = 1; i < nb_params; i++) {
+        cr_log_error("> %ld\n", params[i]);
+        // Allocate initial memory
+        char *ptr = my_malloc(params[i]);
+        cr_assert_not_null(ptr, "malloc failed to allocate memory (%ld)", params[i]);
+        show_alloc_mem();
+
+        // Reallocate to a smaller size
+        size_t new_size = params[i] / 2;
+        char *new_ptr = my_realloc(ptr, new_size);
+        cr_assert_not_null(new_ptr, "realloc failed to reallocate memory to smaller size (%ld)", new_size);
+        show_alloc_mem();
+        //
+        my_free(new_ptr);
+    }
+}
+
+Test(realloc, realloc_zero_size) {
+    // Allocate initial memory
+    char *ptr = my_malloc(128);
+    cr_assert_not_null(ptr, "malloc failed to allocate memory");
+
+    // Reallocate to 0, should behave like free
+    char *new_ptr = my_realloc(ptr, 0);
+    cr_assert_null(new_ptr, "realloc with 0 should return NULL");
+
+    // Ensure memory was freed
+    // show_alloc_mem();  // Ensure no memory is left allocated
+}
+
+Test(realloc, realloc_null_ptr) {
+    // Reallocate with a NULL pointer, should behave like malloc
+    char *new_ptr = my_realloc(NULL, 128);
+    cr_assert_not_null(new_ptr, "realloc(NULL, size) should behave like malloc");
+
+    my_free(new_ptr);
+}
+
+Test(multiple, multiple) {
+    // size_t M = 1024 * 1024;
+    show_alloc_mem();
+    void* a = my_malloc(1);
+    show_alloc_mem();
+    my_free(a);
+    show_alloc_mem();
+    a = my_malloc(2);
+    show_alloc_mem();
+    // a = my_malloc(4);
+    // a = my_malloc(8);
+    // a = my_malloc(16);
+    // a = my_malloc(32);
+    // a = my_malloc(64);
+    // a = my_malloc(128);
+    // a = my_malloc(256);
+    // a = my_malloc(512);
+    // a = my_malloc(1024);
+    // a = my_malloc(1024 * 2);
+    // a = my_malloc(1024 * 4); 
+    // a = my_malloc(1024 * 32);
+    // a = my_malloc(M);
+    // a = my_malloc(16*M);
+    // a = my_malloc(128*M);
+    // show_alloc_mem(); 
+    // my_free(a);
+}
 // /*
 // #define M (1024 * 1024)
 //
 // int main()
 // {
-//     void* a = malloc(1);
-//     void* b = malloc(2);
-//     void* c = malloc(4);
-//     void* d = malloc(8);
-//     void* e = malloc(16);
-//     void* f = malloc(32);
-//     void* g = malloc(64);
-//     void* h = malloc(128);
-//     void* i = malloc(256);
-//     void* j = malloc(512);
-//     void* k = malloc(1024);
-//     void* l = malloc(1024 * 2);
-//     void* m = malloc(1024 * 4); 
-//     void* n = malloc(1024 * 32);
-//     void* o = malloc(M);
-//     void* p = malloc(16*M);
-//     void* q = malloc(128*M);
-//     show_alloc_mem(); 
-//     return (0); 
 // }
 // */

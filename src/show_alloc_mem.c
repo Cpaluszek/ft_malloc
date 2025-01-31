@@ -5,7 +5,6 @@ size_t show_zone_mem(zone* z, char* zone_type);
 size_t show_chunks_mem(chunkptr c, int is_large);
 size_t print_chunk_info(chunkptr c, int is_large);
 
-// NOTE: show_alloc_mem print aligned memory and not real allocation
 void show_alloc_mem(void) {
     size_t total_allocated_memory = 0;
 
