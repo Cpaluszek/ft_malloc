@@ -55,14 +55,18 @@ void* malloc(size_t size) {
 }
 
 void *calloc(size_t nnemb, size_t size) {
+    if (nnemb == 0 || size == 0) {
+        return malloc(0);
+    }
+
     if (nnemb > 0 && size > INT_MAX / nnemb) {
         printf_fd(STDERR, "Error: integer overflow in calloc requested size\n");
         return NULL;
     }
-    char* ptr = malloc(size);
+    char* ptr = malloc(size * nnemb);
 
     if (ptr != NULL) {
-        ft_bzero(ptr, size);
+        ft_bzero(ptr, size * nnemb);
     }
 
     return ptr;
