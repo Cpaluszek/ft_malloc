@@ -62,7 +62,6 @@ void* realloc(void* ptr, size_t size) {
         memory_copy(new, ptr, copy_size);
     }
 
-    // Copy
     free(ptr);
     return new;
 }
