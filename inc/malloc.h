@@ -1,8 +1,9 @@
 #ifndef MALLOC_H
 # define MALLOC_H
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <limits.h>
 #include "chunk.h"
 #include "zone.h"
 #include "utils.h"
@@ -27,10 +28,10 @@ typedef struct s_malloc_state {
 
 extern malloc_state state;
 
-void *my_malloc(size_t size);
-void *my_realloc(void* ptr, size_t size);
-void my_free(void* ptr);
-void *my_calloc(size_t size);
+void *malloc(size_t size);
+void *realloc(void* ptr, size_t size);
+void *calloc(size_t nnemb, size_t size);
+void free(void* ptr);
 
 void show_alloc_mem(void);
 void show_alloc_mem_ex(void);

@@ -1,11 +1,10 @@
 #include "malloc.h"
 #include "chunk.h"
+#include "print.h"
 
 extern malloc_state state;
 
-// TODO: rename my_function() to function()
-
-void* my_malloc(size_t size) {
+void* malloc(size_t size) {
     if (size > SMALL_MAX_ALLOC_SIZE) {
         return allocate_large_chunk(size);
     }
@@ -55,8 +54,12 @@ void* my_malloc(size_t size) {
     return ptr;
 }
 
-void *my_calloc(size_t size) {
-    char* ptr = my_malloc(size);
+void *calloc(size_t nnemb, size_t size) {
+    if (nnemb > 0 && size > INT_MAX / nnemb) {
+        printf_fd(STDERR, "Error: integer overflow in calloc requested size\n");
+        return NULL;
+    }
+    char* ptr = malloc(size);
 
     if (ptr != NULL) {
         ft_bzero(ptr, size);

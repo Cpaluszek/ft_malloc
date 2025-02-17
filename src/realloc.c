@@ -2,15 +2,15 @@
 #include "malloc.h"
 #include "zone.h"
 
-void* my_realloc(void* ptr, size_t size) {
+void* realloc(void* ptr, size_t size) {
     // realloc(NULL, size) behaves like malloc(size)
     if (ptr == NULL) {
-        return my_malloc(size);
+        return malloc(size);
     }
 
     // realloc(ptr, 0) is equivalent to free(ptr)
     if (size == 0) {
-        my_free(ptr);
+        free(ptr);
         return NULL;
     }
 
@@ -55,7 +55,7 @@ void* my_realloc(void* ptr, size_t size) {
     }
 
     // Allocate new memory zone
-    void* new = my_malloc(size);
+    void* new = malloc(size);
 
     if (new != NULL) {
         size_t copy_size = (prev_size < size) ? prev_size : size;
@@ -63,7 +63,7 @@ void* my_realloc(void* ptr, size_t size) {
     }
 
     // Copy
-    my_free(ptr);
+    free(ptr);
     return new;
 }
 

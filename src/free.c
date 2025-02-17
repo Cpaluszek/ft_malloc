@@ -5,7 +5,7 @@
 void free_large_chunk(chunkptr c);
 void free_chunk_in_zone(chunkptr c, zone* z);
 
-void my_free(void* ptr) {
+void free(void* ptr) {
     if (ptr == NULL) return;
     if (is_aligned_to_16(ptr) == 0) return;
 

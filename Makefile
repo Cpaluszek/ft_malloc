@@ -24,7 +24,7 @@ CC_DEFS_FLAGS	:=	$(foreach def,$(CC_DEFS),-D $(def))
 
 LINKAGE = $(SYMLINK)
 
-DEBUG ?= 1
+DEBUG ?= 0
 
 ifeq ($(DEBUG), 1)
 CC_FLAGS += -g3 -fsanitize=address
@@ -61,7 +61,7 @@ re: fclean all
 test: all
 	$(MAKE) -C test DEBUG=$(DEBUG)
 	@echo "--- TESTS ---"
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 --filter 'multiple/*'
+	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 #--filter 'multiple/*'
 
 test_bonus: all
 	$(MAKE) -C test DEBUG=$(DEBUG)

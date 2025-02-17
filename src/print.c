@@ -19,7 +19,9 @@ int printf_fd(int fd, const char *input, ...) {
         if (input[i] == '%') {
             char_count += pick_conversion_fd(fd, input[++i], args) - 2;
         } else {
-            write(fd, &input[i], 1);
+            if (write(fd, &input[i], 1) == -1) {
+                return -1;
+            }
         }
         if (input[i]) {
             i++;
@@ -46,17 +48,24 @@ int pick_conversion_fd(int fd, const char c, va_list args) {
         return print_hex_fd(va_arg(args, unsigned int), fd, HEX_BASE_UPPER);
     if (c == 'c') {
         char c = va_arg(args, int);
-        write(fd, &c, 1);
+        if (write(fd, &c, 1) == -1) {
+            return -1;
+        }
     }
-    else if (c == '%')
-        write(fd, "%", 1);
+    else if (c == '%') {
+        if (write(fd, "%", 1) == -1) {
+            return -1;
+        }
+    }
     return (1);
 }
 
 int print_decimal_fd(const int nb, int fd) {
     if (nb >= 0)
         return print_unsigned_int_fd(nb, fd);
-    write(fd, "-", 1);
+    if (write(fd, "-", 1) == -1) {
+        return -1;
+    }
     return 1 + print_unsigned_int_fd(-nb, fd);
 }
 
@@ -69,7 +78,9 @@ int print_string_fd(const char *str, int fd) {
 int print_pointer_fd(size_t ptr, int fd) {
     size_t b_len = string_length(HEX_BASE_LOWER);
 
-    write(fd, PTR_PREFIX, string_length(PTR_PREFIX));
+    if (write(fd, PTR_PREFIX, string_length(PTR_PREFIX)) == -1) {
+        return -1;
+    }
     return 2 + print_size_t_base_fd(ptr, HEX_BASE_LOWER, b_len, fd);
 }
 
@@ -84,7 +95,9 @@ int print_unsigned_int_fd(unsigned int nb, int fd) {
     if (nb > 9)
         len += print_unsigned_int_fd(nb / 10, fd);
     char c = '0' + (nb % 10);
-    write(fd, &c, 1);
+    if (write(fd, &c, 1) == -1) {
+        return -1;
+    }
     return len;
 }
 
@@ -111,7 +124,9 @@ int print_size_t_base_fd(size_t nb, char *base, size_t b_len, int fd) {
 
     if (nb >= b_len)
         char_count += print_size_t_base_fd(nb / b_len, base, b_len, fd);
-    write(fd, &base[nb % b_len], 1);
+    if (write(fd, &base[nb % b_len], 1) == -1) {
+        return -1;
+    }
     return char_count;
 }
 

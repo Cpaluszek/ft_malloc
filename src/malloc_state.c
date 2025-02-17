@@ -19,7 +19,7 @@ void malloc_state_init(void) {
 
     char *env = getenv("MALLOC_PERTURB_");
     if (env) {
-        state.perturb = (uint8_t)atoi(env);
+        state.perturb = (uint8_t)ft_atoi(env);
     } else {
         state.perturb = 0;
     }
