@@ -9,6 +9,21 @@ This project involves creating a dynamic memory allocation mechanism by implemen
 - `getrlimit(2)`
 - functions from libpthread
 
+## How to link
+
+To use `libft_malloc.so` with your program, preload it using the `LD_PRELOAD` environment variable.
+This forces the dynamic linker to use your custom malloc implementation instead of the system's default.
+
+Usage:
+```bash
+LD_PRELOAD=libft_malloc.so LD_LIBRARY_PATH=. ./program
+```
+Explanation:
+`LD_PRELOAD=./libft_malloc.so` → Preloads your custom memory allocator before other shared libraries.
+`LD_LIBRARY_PATH=.` → Ensures the linker can find libft_malloc.so in the current directory.
+`./program` → Runs your executable with the custom allocator.
+
+
 ## Mandatory Part
 Implement a custom dynamic memory allocation library, including the following functions:
 - `malloc(size_t size)` - Allocates memory of the `size` and returns a pointer.
