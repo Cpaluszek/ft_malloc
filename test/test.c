@@ -241,10 +241,4 @@ Test(multiple, multiple) {
     show_alloc_mem();
     my_free(a);
 }
-// /*
-// #define M (1024 * 1024)
-//
-// int main()
-// {
-// }
-// */
+
