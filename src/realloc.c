@@ -2,6 +2,8 @@
 #include "malloc.h"
 #include "zone.h"
 
+void* realloc_new_memory(void* ptr, size_t size, size_t prev_size);
+
 void* realloc(void* ptr, size_t size) {
     // realloc(NULL, size) behaves like malloc(size)
     if (ptr == NULL) {
@@ -19,45 +21,56 @@ void* realloc(void* ptr, size_t size) {
     size_t required_size = align_to_16(size) + CHUNK_HEADER_SIZE;
 
     zone* z = get_zone_from_chunk(c);
-
-    size_t max_chunk_size = (z && z->size == TINY_HEAP_SIZE) ? TINY_MAX_ALLOC_SIZE : SMALL_MAX_ALLOC_SIZE;
-    size_t min_chunk_size = (z && z->size == TINY_HEAP_SIZE) ? 0 : TINY_MAX_ALLOC_SIZE;
-
+ 
     if (prev_size == required_size) {
         return ptr;
     }
- 
-    // If the current chunk is already large enough
-    if (prev_size > required_size) {
-        if (is_chunk_mmap(c) == 0 && (prev_size > required_size + min_chunk_size)) {
-            split_chunk(c, required_size);
+
+    // Large chunk are completely reallocated
+    if (is_chunk_mmap(c) == 1) {
+        return realloc_new_memory(ptr, size, prev_size);
+    }
+
+    // Chunks size limits, if it belongs to a zone
+    size_t max_chunk_size = (z && z->size == TINY_HEAP_SIZE) ? TINY_MAX_ALLOC_SIZE : SMALL_MAX_ALLOC_SIZE;
+    size_t min_chunk_size = (z && z->size == TINY_HEAP_SIZE) ? 0 : TINY_MAX_ALLOC_SIZE;
+
+    // If the chunk remains in the same zone
+    if (required_size > min_chunk_size && required_size <= max_chunk_size) {
+        // If the current chunk is already large enough
+        if (0 && prev_size > required_size) {
+            split_chunk(c, required_size, z);
+            set_chunk_in_use(c);
+
             insert_chunk_in_free_list(c->next, z);
             return ptr;
         }
-    } else if (size <= SMALL_MAX_ALLOC_SIZE) { // Try expanding into the next chunk 
-        // Check if the current zone can hold the new allocation
-        if (required_size <= max_chunk_size && required_size >= min_chunk_size) {
-            // Is there space right after the current chunk
-            chunkptr next = (chunkptr)((char*)c + get_chunk_size(c));
-            if (is_chunk_in_zone(next, z) == 1 && is_chunk_free(next)) {
-                // We can merge the next block - no copy required
-                merge_chunk_with_next(c);
 
-                // split after the merge
-                if (get_chunk_size(c) > required_size + min_chunk_size) {
-                    split_chunk(c, required_size);
-                    insert_chunk_in_free_list(c->next, z);
-                }
+        chunkptr next = (chunkptr)((char*)c + get_chunk_size(c));
+        // chunkptr next = c->next;
+        // Is there space right after the current chunk and the next chunk is large enough
+        if (0 && is_chunk_in_zone(next, z) && is_chunk_free(next) && prev_size + get_chunk_size(next) >= required_size) {
+            // We can merge the next block - no copy required
+            merge_chunk_with_next(c);
+            set_chunk_in_use(c);
 
-                return ptr;
+            // split after the merge
+            if (get_chunk_size(c) > required_size + min_chunk_size) {
+                split_chunk(c, required_size, z);
+                insert_chunk_in_free_list(c->next, z);
             }
+           return ptr;
         }
     }
-
     // Allocate new memory zone
+    return realloc_new_memory(ptr, size, prev_size);
+}
+
+void* realloc_new_memory(void* ptr, size_t size, size_t prev_size) {
     void* new = malloc(size);
 
     if (new != NULL) {
+        // TODO: create min fucntion
         size_t copy_size = (prev_size < size) ? prev_size : size;
         memory_copy(new, ptr, copy_size);
     }

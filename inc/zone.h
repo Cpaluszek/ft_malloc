@@ -11,7 +11,7 @@
 typedef struct s_zone {
     size_t size;            // Total size of the zone
     struct s_zone* next;    // Next zone
-    chunkptr free_list;     // Ptr to the free list
+    chunkptr chunk_list;     // Ptr to the free list
     uint64_t _padding;      // Data for alignment
     char data[];            // Start of the actual memory for allocations
 } zone;
@@ -25,7 +25,7 @@ int is_chunk_in_zone(chunkptr c, zone* z);
 
 zone* get_zone_from_chunk(chunkptr c);
 
-void split_chunk(chunkptr c, size_t size);
+void split_chunk(chunkptr c, size_t size, zone* z);
 void merge_chunk_with_next(chunkptr c);
 
 #endif

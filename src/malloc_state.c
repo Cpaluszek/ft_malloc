@@ -1,10 +1,14 @@
 #include "malloc.h"
+#include "print.h"
 #include <stdint.h>
 
 malloc_state state;
 
 __attribute__((constructor(101)))
 void malloc_state_init(void) {
+    if (state.tiny != NULL) {
+        return ;
+    }
     state.tiny = init_zone(TINY_HEAP_SIZE);
     if (state.tiny == NULL) {
         exit(1);
