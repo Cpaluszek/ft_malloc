@@ -5,6 +5,10 @@
 extern malloc_state state;
 
 void* malloc(size_t size) {
+    if (state.tiny == NULL) {
+        malloc_state_init();
+    }
+
     if (size > SMALL_MAX_ALLOC_SIZE) {
         return allocate_large_chunk(size);
     }
@@ -97,7 +101,7 @@ void* allocate_large_chunk(size_t size) {
 zone* get_available_zone(size_t size) {
     if (size <= TINY_MAX_ALLOC_SIZE) {
         return state.tiny;
-    } else {
+    } else if (size <= SMALL_MAX_ALLOC_SIZE){
         return state.small;
     }
     return NULL;

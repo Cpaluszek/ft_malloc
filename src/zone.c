@@ -16,7 +16,7 @@ zone* init_zone(uint64_t size) {
     initial_chunk->next = NULL;
     set_chunk_free(initial_chunk);
 
-    z->free_list = initial_chunk;
+    z->chunk_list = initial_chunk;
     return z;
 }
 
@@ -32,60 +32,65 @@ void free_zone(zone* z) {
 }
 
 chunkptr find_free_chunk(zone* z, size_t required_size) {
-    chunkptr prev = NULL;
-    chunkptr current = z->free_list;
+    chunkptr current = z->chunk_list;
     while (current != NULL) {
         if (is_chunk_free(current) && get_chunk_size(current) >= required_size) {
             break;
         }
 
-        prev = current;
         current = current->next;
     }
     if (current == NULL) {
         return NULL;
     }
 
-    split_chunk(current, required_size);
-
-    if (prev == NULL) {
-        z->free_list = current->next;
-    } else {
-        prev->next = current->next;
-    }
+    split_chunk(current, required_size, z);
 
     return current;
 }
 
+void split_chunk(chunkptr c, size_t size, zone* z) {
+    chunkptr new_chunk = (chunkptr)((char*)c + size);
+
+    if (is_chunk_in_zone(new_chunk, z) == 0) {
+        return ;
+    }
+
+    // Check if the chunk is large enought to be split
+    size_t new_chunk_size = get_chunk_size(c) - size;
+    if (new_chunk_size < CHUNK_HEADER_SIZE) {
+        return ;
+    }
+
+    // We can split the chunk
+    new_chunk->size = new_chunk_size;
+    set_chunk_free(new_chunk);
+
+    // Add the new chunk in the linked list
+    new_chunk->next = c->next;
+    c->next = new_chunk;
+
+    c->size = size;
+}
+
 void insert_chunk_in_free_list(chunkptr c, zone *z) {
-    chunkptr current = z->free_list;
+    chunkptr current = z->chunk_list;
     chunkptr prev = NULL;
 
+    // Search for the previous chunk
     while (current != NULL && current < c) {
         prev = current;
         current = current->next;
     }
 
-    // c->next = current;
-    if (prev == NULL) {
-        z->free_list = c;
-    } else {
-        prev->next = c;
+
+    if (prev != NULL && is_chunk_free(prev)) {
         merge_chunk_with_next(prev);
         c = prev;
     }
-    merge_chunk_with_next(c);
-}
-
-void split_chunk(chunkptr c, size_t size) {
-    chunkptr new_chunk = (chunkptr)((char*)c + size);
-    new_chunk->size = get_chunk_size(c) - size;
-    set_chunk_free(new_chunk);
-    new_chunk->next = c->next;
-
-    c->size = size;
-    set_chunk_in_use(c);
-    c->next = new_chunk;
+    if (c->next != NULL && is_chunk_free(c->next)) {
+        merge_chunk_with_next(c);
+    }
 }
 
 void merge_chunk_with_next(chunkptr c) {

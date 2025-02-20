@@ -44,5 +44,5 @@ void set_chunk_mmap(chunkptr c) {
 }
 
 int is_chunk_mmap(chunkptr c) {
-    return (c->size & FLAG_IS_MMAP);
+    return (c->size & FLAG_IS_MMAP) != 0;
 }

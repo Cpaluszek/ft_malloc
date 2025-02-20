@@ -51,22 +51,10 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	$(MAKE) -C test clean
 
 fclean: clean
 	rm -f $(NAME) $(SYMLINK)
 
 re: fclean all
-
-test: all
-	$(MAKE) -C test DEBUG=$(DEBUG)
-	@echo "--- TESTS ---"
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 #--filter 'multiple/*'
-
-test_bonus: all
-	$(MAKE) -C test DEBUG=$(DEBUG)
-	@echo "--- TESTS ---"
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./test/test --verbose=2 -j1 --filter 'bonus/hex_dump' > hex_dump
-	LD_PRELOAD=$(LINKAGE) LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH MALLOC_PERTURB_=170 ./test/test --verbose=2 -j1 --filter 'bonus/perturb' > perturb 
 
 .PHONY: all clean fclean re

@@ -54,3 +54,4 @@ dkms.conf
 # Custom
 .cache/
 test/test
+stress
