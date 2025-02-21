@@ -5,8 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#define ALLOC_COUNT 10
-#define REALLOC_COUNT 10
+#define ALLOC_COUNT 1000
+#define REALLOC_COUNT 1000
 #define TINY_ALLOC_MAX_SIZE 128
 #define SMALL_ALLOC_MAX_SIZE 4096
 #define LARGE_ALLOC_MAX_SIZE 10240
